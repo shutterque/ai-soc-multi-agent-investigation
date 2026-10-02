@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Security Alert Investigation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div>
+            <h1>SOC Investigation Platform</h1>
+            <p>AI-Powered Multi-Agent Security Alert Investigation</p>
+        </div>
+
+        <div class="status">
+            <span class="status-dot"></span>
+            System Online
+        </div>
+    </header>
+
+    <main class="dashboard">
+
+        <section class="alert-panel">
+            <h2>Security Alert</h2>
+
+            <div class="alert-card">
+                <div>
+                    <span class="label">Alert ID</span>
+                    <strong>ALT-2026-001</strong>
+                </div>
+
+                <div>
+                    <span class="label">Severity</span>
+                    <strong class="high">HIGH</strong>
+                </div>
+
+                <div>
+                    <span class="label">Source</span>
+                    <strong>SIEM</strong>
+                </div>
+
+                <div>
+                    <span class="label">Status</span>
+                    <strong>Under Investigation</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="investigation">
+
+            <div class="section-header">
+                <h2>Investigation Agents</h2>
+                <span>5 Active Agents</span>
+            </div>
+
+            <div class="agent-grid">
+
+                <div class="agent-card">
+                    <h3>Alert Correlation Agent</h3>
+                    <p>Correlates related security events and historical alerts.</p>
+                    <span class="agent-status">Ready</span>
+                </div>
+
+                <div class="agent-card">
+                    <h3>Threat Intelligence Agent</h3>
+                    <p>Checks IPs, domains, hashes and other threat indicators.</p>
+                    <span class="agent-status">Ready</span>
+                </div>
+
+                <div class="agent-card">
+                    <h3>Identity & User Context Agent</h3>
+                    <p>Analyses user identity, account and privilege context.</p>
+                    <span class="agent-status">Ready</span>
+                </div>
+
+                <div class="agent-card">
+                    <h3>Asset & Device Agent</h3>
+                    <p>Determines device type, ownership and criticality.</p>
+                    <span class="agent-status">Ready</span>
+                </div>
+
+                <div class="agent-card">
+                    <h3>Network Context Agent</h3>
+                    <p>Analyses source, destination and surrounding network activity.</p>
+                    <span class="agent-status">Ready</span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="results">
+
+            <h2>Investigation Result</h2>
+
+            <div class="result-card">
+
+                <div class="risk">
+                    <span>Risk Level</span>
+                    <strong>HIGH</strong>
+                </div>
+
+                <div>
+                    <span class="label">Risk & Prioritisation</span>
+                    <p>Awaiting agent investigation...</p>
+                </div>
+
+                <div>
+                    <span class="label">Incident Summary</span>
+                    <p>Investigation findings will appear here.</p>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
