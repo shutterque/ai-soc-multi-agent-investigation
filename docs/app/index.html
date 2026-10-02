@@ -3,121 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOC Security Alert Investigation</title>
+    <title>SOC Investigation Platform</title>
+    <!-- Link to the CSS file in the same directory -->
     <link rel="stylesheet" href="style.css">
+    <!-- Using Google Material Symbols for enterprise-grade lightweight icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
-
 <body>
+    <div class="app-layout">
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <div class="header-left">
+                <span class="material-symbols-outlined logo-icon">security</span>
+                <div class="brand">
+                    <h1>SOC Investigation Platform</h1>
+                    <span class="subtitle">AI-Powered Multi-Agent Security Operations</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="search-bar">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Search alerts, agents, or assets...">
+                </div>
+                <div class="system-status">
+                    <div class="status-indicator online"></div>
+                    <span>SYSTEM ONLINE</span>
+                </div>
+                <button class="icon-btn" aria-label="Notifications">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button class="icon-btn" aria-label="User Profile">
+                    <span class="material-symbols-outlined">account_circle</span>
+                </button>
+            </div>
+        </header>
 
-    <header class="topbar">
-        <div>
-            <h1>SOC Investigation Platform</h1>
-            <p>AI-Powered Multi-Agent Security Alert Investigation</p>
+        <div class="main-container">
+            <!-- SIDEBAR NAVIGATION -->
+            <aside class="sidebar">
+                <nav>
+                    <a href="#" class="nav-item active" data-target="view-dashboard">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-item" data-target="view-alerts">
+                        <span class="material-symbols-outlined">warning</span>
+                        Alerts <span class="badge">12</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="view-investigation">
+                        <span class="material-symbols-outlined">policy</span>
+                        Investigations
+                    </a>
+                    <a href="#" class="nav-item" data-target="view-agents">
+                        <span class="material-symbols-outlined">smart_toy</span>
+                        Agents
+                    </a>
+                    <a href="#" class="nav-item" data-target="view-evidence">
+                        <span class="material-symbols-outlined">travel_explore</span>
+                        Evidence
+                    </a>
+                    <a href="#" class="nav-item" data-target="view-governance">
+                        <span class="material-symbols-outlined">gavel</span>
+                        Governance
+                    </a>
+                    <a href="#" class="nav-item" data-target="view-settings">
+                        <span class="material-symbols-outlined">settings</span>
+                        Settings
+                    </a>
+                </nav>
+                <div class="sidebar-footer">
+                    <p>Agent Orchestration: <br>4/5 Operational</p>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT AREA -->
+            <main class="content-area">
+                
+                <!-- VIEW: DASHBOARD -->
+                <section id="view-dashboard" class="page-view active">
+                    <header class="page-header">
+                        <h2>SOC Overview</h2>
+                        <p>Security alert monitoring, investigation status and AI-assisted prioritisation.</p>
+                    </header>
+
+                    <div class="kpi-grid" id="dashboard-kpis">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="panel">
+                            <h3>Alert Overview</h3>
+                            <div class="chart-mock">
+                                <div class="chart-bar"><div class="fill critical" style="height: 15%;"></div><span>Crit</span></div>
+                                <div class="chart-bar"><div class="fill high" style="height: 40%;"></div><span>High</span></div>
+                                <div class="chart-bar"><div class="fill medium" style="height: 70%;"></div><span>Med</span></div>
+                                <div class="chart-bar"><div class="fill low" style="height: 30%;"></div><span>Low</span></div>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <h3>Recent Investigation Activity</h3>
+                            <div class="activity-timeline" id="dashboard-activity">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel mt-4">
+                        <h3>Recent Security Alerts</h3>
+                        <div class="table-responsive">
+                            <table class="data-table" id="dashboard-alerts-table">
+                                <thead>
+                                    <tr>
+                                        <th>Alert ID</th>
+                                        <th>Severity</th>
+                                        <th>Alert Type</th>
+                                        <th>Source</th>
+                                        <th>Asset</th>
+                                        <th>Status</th>
+                                        <th>Risk Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: ALERTS -->
+                <section id="view-alerts" class="page-view">
+                    <header class="page-header">
+                        <h2>Alert Management</h2>
+                    </header>
+                    <div class="panel">
+                        <div class="table-controls">
+                            <input type="text" placeholder="Filter alerts...">
+                            <select><option>All Severities</option><option>Critical</option></select>
+                            <select><option>All Statuses</option><option>Investigating</option></select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" id="alerts-page-table">
+                                <thead>
+                                    <tr>
+                                        <th>Alert ID</th>
+                                        <th>Severity</th>
+                                        <th>Alert Type</th>
+                                        <th>Source</th>
+                                        <th>Asset</th>
+                                        <th>Timestamp</th>
+                                        <th>Risk Score</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: INVESTIGATION DETAIL (Core App Feature) -->
+                <section id="view-investigation" class="page-view">
+                    <header class="investigation-header">
+                        <div class="inv-title">
+                            <h2 id="inv-alert-id">ALT-2026-000</h2>
+                            <span class="badge badge-critical" id="inv-severity">CRITICAL</span>
+                            <span class="badge badge-status" id="inv-status">INVESTIGATING</span>
+                        </div>
+                        <div class="inv-actions">
+                            <button class="btn btn-secondary">Assign</button>
+                            <button class="btn btn-secondary">Escalate</button>
+                            <button class="btn btn-primary" onclick="alert('Demo: Requesting human review...')">Request Review</button>
+                        </div>
+                    </header>
+
+                    <div class="investigation-grid">
+                        <!-- Left Column -->
+                        <div class="inv-main">
+                            <!-- AI Summary -->
+                            <div class="panel ai-panel">
+                                <div class="panel-header">
+                                    <h3>SIMULATED AI INVESTIGATION SUMMARY</h3>
+                                    <span class="badge">Confidence: 87%</span>
+                                </div>
+                                <p class="ai-text">Multiple indicators suggest suspicious PowerShell execution on FIN-WS-042. Endpoint telemetry shows encoded command execution followed by an outbound connection to an external IP. Threat intelligence enrichment indicates the destination requires further investigation.</p>
+                                <div class="ai-footer">
+                                    <span class="material-symbols-outlined icon-small">science</span> Reasoning status: Multi-agent evidence correlated
+                                </div>
+                            </div>
+
+                            <!-- Agent Investigation Cards -->
+                            <h3 class="section-title">Multi-Agent Investigation</h3>
+                            <div class="agent-cards" id="inv-agents">
+                                <!-- Populated by JS -->
+                            </div>
+
+                            <!-- Human in the loop -->
+                            <div class="panel hitl-panel">
+                                <div class="hitl-header">
+                                    <span class="material-symbols-outlined">person</span>
+                                    <h3>HUMAN ANALYST REVIEW</h3>
+                                    <span class="badge badge-pending">Pending Analyst Decision</span>
+                                </div>
+                                <div class="hitl-content">
+                                    <p><strong>AI Recommendation:</strong> Escalate for further investigation (Confidence: 89%)</p>
+                                    <p><strong>Reason:</strong> Multiple correlated indicators indicate elevated risk.</p>
+                                    <p class="warning-text">AI recommendation requires human approval. AI-generated recommendations do not constitute autonomous security decisions.</p>
+                                </div>
+                                <div class="hitl-actions">
+                                    <button class="btn btn-primary" onclick="app.handleHitlDecision('Approve')">Approve Recommendation</button>
+                                    <button class="btn btn-danger" onclick="app.handleHitlDecision('Reject')">Reject Recommendation</button>
+                                    <button class="btn btn-secondary" onclick="app.handleHitlDecision('Request Evidence')">Request More Evidence</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="inv-sidebar">
+                            <div class="panel risk-panel">
+                                <h3>Risk Assessment</h3>
+                                <div class="risk-score-display">
+                                    <span class="score critical-text">92</span><span class="score-max">/100</span>
+                                </div>
+                                <ul class="risk-factors">
+                                    <li>Endpoint Behaviour <span class="text-high">HIGH</span></li>
+                                    <li>Network Destination <span class="text-high">HIGH</span></li>
+                                    <li>Identity Context <span class="text-medium">MEDIUM</span></li>
+                                    <li>Threat Intelligence <span class="text-high">HIGH</span></li>
+                                </ul>
+                            </div>
+
+                            <div class="panel">
+                                <h3>Evidence Timeline</h3>
+                                <div class="timeline" id="inv-timeline">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: AGENTS -->
+                <section id="view-agents" class="page-view">
+                    <header class="page-header">
+                        <h2>Agent Orchestration</h2>
+                    </header>
+                    <div class="agent-grid" id="agents-page-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- VIEW: EVIDENCE & GOVERNANCE & SETTINGS (Placeholders) -->
+                <section id="view-evidence" class="page-view">
+                    <header class="page-header"><h2>Evidence Repository</h2></header>
+                    <div class="panel"><p>Evidence repository module mock view.</p></div>
+                </section>
+                
+                <section id="view-governance" class="page-view">
+                    <header class="page-header"><h2>Governance & Audit</h2></header>
+                    <div class="panel">
+                        <div class="governance-statement">
+                            <span class="material-symbols-outlined">policy</span>
+                            <p>AI-generated recommendations do not constitute autonomous security decisions. Consequential actions require authorised human review.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-settings" class="page-view">
+                    <header class="page-header"><h2>Platform Settings</h2></header>
+                    <div class="panel"><p>Configuration module mock view.</p></div>
+                </section>
+
+            </main>
         </div>
-
-        <div class="status">
-            <span class="status-dot"></span>
-            System Online
-        </div>
-    </header>
-
-    <main class="dashboard">
-
-        <section class="alert-panel">
-            <h2>Security Alert</h2>
-
-            <div class="alert-card">
-                <div>
-                    <span class="label">Alert ID</span>
-                    <strong>ALT-2026-001</strong>
-                </div>
-
-                <div>
-                    <span class="label">Severity</span>
-                    <strong class="high">HIGH</strong>
-                </div>
-
-                <div>
-                    <span class="label">Source</span>
-                    <strong>SIEM</strong>
-                </div>
-
-                <div>
-                    <span class="label">Status</span>
-                    <strong>Under Investigation</strong>
-                </div>
-            </div>
-        </section>
-
-        <section class="investigation">
-
-            <div class="section-header">
-                <h2>Investigation Agents</h2>
-                <span>5 Active Agents</span>
-            </div>
-
-            <div class="agent-grid">
-
-                <div class="agent-card">
-                    <h3>Alert Correlation Agent</h3>
-                    <p>Correlates related security events and historical alerts.</p>
-                    <span class="agent-status">Ready</span>
-                </div>
-
-                <div class="agent-card">
-                    <h3>Threat Intelligence Agent</h3>
-                    <p>Checks IPs, domains, hashes and other threat indicators.</p>
-                    <span class="agent-status">Ready</span>
-                </div>
-
-                <div class="agent-card">
-                    <h3>Identity & User Context Agent</h3>
-                    <p>Analyses user identity, account and privilege context.</p>
-                    <span class="agent-status">Ready</span>
-                </div>
-
-                <div class="agent-card">
-                    <h3>Asset & Device Agent</h3>
-                    <p>Determines device type, ownership and criticality.</p>
-                    <span class="agent-status">Ready</span>
-                </div>
-
-                <div class="agent-card">
-                    <h3>Network Context Agent</h3>
-                    <p>Analyses source, destination and surrounding network activity.</p>
-                    <span class="agent-status">Ready</span>
-                </div>
-
-            </div>
-
-        </section>
-
-        <section class="results">
-
-            <h2>Investigation Result</h2>
-
-            <div class="result-card">
-
-                <div class="risk">
-                    <span>Risk Level</span>
-                    <strong>HIGH</strong>
-                </div>
-
-                <div>
-                    <span class="label">Risk & Prioritisation</span>
-                    <p>Awaiting agent investigation...</p>
-                </div>
-
-                <div>
-                    <span class="label">Incident Summary</span>
-                    <p>Investigation findings will appear here.</p>
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-<script src="script.js"></script>
+    </div>
+    
+    <!-- Link to the JS file in the same directory -->
+    <script src="script.js"></script>
 </body>
 </html>
