@@ -1186,9 +1186,13 @@
          * Designed to be easily replaceable with actual API fetch calls later.
          */
         const appState = {
-            currentPage: 'view-dashboard',
-            selectedAlertId: null
-        };
+    currentPage: 'view-dashboard',
+    selectedAlertId: null,
+    investigations: {},
+    evidence: [],
+    governanceEvents: [],
+    activities: []
+};
 
         const mockAlerts = [
             { id: 'ALT-2026-001', severity: 'Critical', type: 'Suspicious PowerShell Activity', source: 'EDR', asset: 'FIN-WS-042', user: 'j.doe', detected: '2 min ago', status: 'Pending Review', risk: 94 },
