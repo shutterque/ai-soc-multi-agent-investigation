@@ -3,284 +3,1495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOC Investigation Platform</title>
-    <!-- Link to the CSS file in the same directory -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Using Google Material Symbols for enterprise-grade lightweight icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title>AI-Powered Multi-Agent SOC Investigation Platform</title>
+    <!-- Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons: Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        :root {
+            /* Theme Variables - Dark Cybersecurity Palette */
+            --bg-base: #070b14;
+            --bg-panel: #111827;
+            --bg-panel-hover: #1f2937;
+            --border: #1e293b;
+            --border-light: #334155;
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --accent: #0ea5e9;
+            --accent-hover: #0284c7;
+            --accent-bg: rgba(14, 165, 233, 0.1);
+            
+            --critical: #ef4444;
+            --critical-bg: rgba(239, 68, 68, 0.15);
+            --high: #f97316;
+            --high-bg: rgba(249, 115, 22, 0.15);
+            --medium: #eab308;
+            --medium-bg: rgba(234, 179, 8, 0.15);
+            --low: #10b981;
+            --low-bg: rgba(16, 185, 129, 0.15);
+            
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --warning: #f59e0b;
+            
+            --radius-md: 6px;
+            --radius-lg: 10px;
+            
+            --font-main: 'Inter', sans-serif;
+            
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            overflow: hidden; /* App shell manages scrolling */
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            background: none;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 20;
+        }
+
+        .brand {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+        }
+
+        .brand-icon {
+            color: var(--accent);
+            font-size: 24px;
+        }
+
+        .brand-text h1 {
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-text span {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .nav-menu {
+            padding: 20px 12px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--bg-panel-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            border-left: 3px solid var(--accent);
+            background-color: var(--accent-bg);
+            color: var(--accent);
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background-color: var(--critical-bg);
+            color: var(--critical);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--critical);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-w: 0;
+            background-color: var(--bg-base);
+        }
+
+        .header {
+            height: 64px;
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 10;
+        }
+
+        .header-search {
+            position: relative;
+            width: 300px;
+        }
+
+        .header-search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .header-search input {
+            width: 100%;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 8px 12px 8px 36px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .header-search input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--success);
+            background: var(--success-bg);
+            padding: 4px 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .system-status.warning {
+            color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: currentColor;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .icon-btn {
+            color: var(--text-secondary);
+            font-size: 20px;
+            transition: color 0.2s;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 1px solid var(--border);
+            padding-left: 20px;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* View Container */
+        .view-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .page-title {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        
+        .mt-4 { margin-top: 16px; }
+        .mt-6 { margin-top: 24px; }
+        .mb-4 { margin-bottom: 16px; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border-color: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-panel-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--critical-bg);
+            border-color: var(--critical);
+            color: var(--critical);
+        }
+        .btn-danger:hover {
+            background-color: var(--critical);
+            color: #fff;
+        }
+
+        .btn-success {
+            background-color: var(--success-bg);
+            border-color: var(--success);
+            color: var(--success);
+        }
+        .btn-success:hover {
+            background-color: var(--success);
+            color: #fff;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-outline { border: 1px solid currentColor; background: transparent; }
+
+        /* Severity Colors */
+        .sev-critical { color: var(--critical); background-color: var(--critical-bg); border: 1px solid var(--critical); }
+        .sev-high { color: var(--high); background-color: var(--high-bg); border: 1px solid var(--high); }
+        .sev-medium { color: var(--medium); background-color: var(--medium-bg); border: 1px solid var(--medium); }
+        .sev-low { color: var(--low); background-color: var(--low-bg); border: 1px solid var(--low); }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: var(--bg-panel-hover);
+        }
+
+        .clickable-row { cursor: pointer; }
+
+        /* KPI Cards */
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 8px;
+            color: var(--text-primary);
+        }
+        
+        .kpi-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Alert Visualization Bar */
+        .alert-bar-container {
+            display: flex;
+            height: 24px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-top: 16px;
+            width: 100%;
+        }
+        .alert-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Timeline Component */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--border-light);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-item:last-child { margin-bottom: 0; }
+
+        .timeline-dot {
+            position: absolute;
+            left: -24px;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--bg-panel);
+            border: 2px solid var(--accent);
+            z-index: 1;
+        }
+
+        .timeline-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .timeline-content {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .investigation-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .ai-panel {
+            background: linear-gradient(145deg, var(--bg-panel) 0%, rgba(14, 165, 233, 0.05) 100%);
+            border: 1px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05);
+        }
+
+        .ai-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            border: 1px solid var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .ai-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .agent-card {
+            background: var(--bg-panel-hover);
+            border: 1px solid var(--border-light);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .agent-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .agent-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .human-review-panel {
+            border: 1px solid var(--warning);
+            background: rgba(245, 158, 11, 0.05);
+        }
+        
+        .human-review-header {
+            color: var(--warning);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        /* Mock UI / Governance Banners */
+        .mock-warning-banner {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        /* Custom Modal / Message Box (Replaces Alert/Confirm) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-box {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            width: 400px;
+            max-width: 90vw;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+        .modal-overlay.show .modal-box {
+            transform: translateY(0);
+        }
+        .modal-title { font-size: 18px; margin-bottom: 12px; font-weight: 600; }
+        .modal-body { color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+            .investigation-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -100%;
+                height: 100%;
+            }
+            .sidebar.mobile-open {
+                left: 0;
+                box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+            }
+            .grid-4, .grid-5, .grid-3 { grid-template-columns: repeat(2, 1fr); }
+            #mobile-menu-btn { display: block !important; }
+        }
+        @media (max-width: 480px) {
+            .grid-4, .grid-5, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        #mobile-menu-btn { display: none; margin-right: 16px; }
+    </style>
 </head>
 <body>
-    <div class="app-layout">
-        <!-- TOP HEADER -->
-        <header class="top-header">
-            <div class="header-left">
-                <span class="material-symbols-outlined logo-icon">security</span>
-                <div class="brand">
-                    <h1>SOC Investigation Platform</h1>
-                    <span class="subtitle">AI-Powered Multi-Agent Security Operations</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="search-bar">
-                    <span class="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Search alerts, agents, or assets...">
-                </div>
-                <div class="system-status">
-                    <div class="status-indicator online"></div>
-                    <span>SYSTEM ONLINE</span>
-                </div>
-                <button class="icon-btn" aria-label="Notifications">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
-                <button class="icon-btn" aria-label="User Profile">
-                    <span class="material-symbols-outlined">account_circle</span>
-                </button>
-            </div>
-        </header>
 
-        <div class="main-container">
-            <!-- SIDEBAR NAVIGATION -->
-            <aside class="sidebar">
-                <nav>
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <i class="ph-fill ph-shield-check brand-icon"></i>
+                <div class="brand-text">
+                    <h1>Nexus SOC</h1>
+                    <span>Multi-Agent Platform</span>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li>
                     <a href="#" class="nav-item active" data-target="view-dashboard">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        Dashboard
+                        <i class="ph ph-squares-four"></i> Dashboard
                     </a>
+                </li>
+                <li>
                     <a href="#" class="nav-item" data-target="view-alerts">
-                        <span class="material-symbols-outlined">warning</span>
-                        Alerts <span class="badge">12</span>
+                        <i class="ph ph-bell-ringing"></i> Alerts
+                        <span class="nav-badge" id="nav-alert-badge">24</span>
                     </a>
-                    <a href="#" class="nav-item" data-target="view-investigation">
-                        <span class="material-symbols-outlined">policy</span>
-                        Investigations
+                </li>
+                <li>
+                    <a href="#" class="nav-item" data-target="view-investigation" style="display:none;" id="nav-investigation">
+                        <!-- Hidden link used for routing logic, normal navigation happens via clicking alerts -->
+                        <i class="ph ph-magnifying-glass"></i> Investigation
                     </a>
+                </li>
+                <li>
                     <a href="#" class="nav-item" data-target="view-agents">
-                        <span class="material-symbols-outlined">smart_toy</span>
-                        Agents
+                        <i class="ph ph-cpu"></i> Agents
                     </a>
+                </li>
+                <li>
                     <a href="#" class="nav-item" data-target="view-evidence">
-                        <span class="material-symbols-outlined">travel_explore</span>
-                        Evidence
+                        <i class="ph ph-files"></i> Evidence
                     </a>
+                </li>
+                <li>
                     <a href="#" class="nav-item" data-target="view-governance">
-                        <span class="material-symbols-outlined">gavel</span>
-                        Governance
+                        <i class="ph ph-scales"></i> Governance
                     </a>
+                </li>
+                <li style="margin-top: 24px;">
                     <a href="#" class="nav-item" data-target="view-settings">
-                        <span class="material-symbols-outlined">settings</span>
-                        Settings
+                        <i class="ph ph-gear"></i> Settings
                     </a>
-                </nav>
-                <div class="sidebar-footer">
-                    <p>Agent Orchestration: <br>4/5 Operational</p>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div style="display: flex; align-items: center;">
+                    <button class="icon-btn" id="mobile-menu-btn"><i class="ph ph-list"></i></button>
+                    <div class="header-search">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" placeholder="Search alerts, endpoints, users (e.g. FIN-WS-042)">
+                    </div>
                 </div>
-            </aside>
 
-            <!-- MAIN CONTENT AREA -->
-            <main class="content-area">
+                <div class="header-actions">
+                    <div class="system-status" id="system-status">
+                        <div class="status-dot"></div>
+                        <span>SYSTEM ONLINE</span>
+                    </div>
+                    <button class="icon-btn"><i class="ph ph-bell"></i></button>
+                    <div class="user-profile">
+                        <div class="avatar">SA</div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 13px; font-weight: 600;">Sr. Analyst</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Tier 3</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="view-container">
                 
-                <!-- VIEW: DASHBOARD -->
-                <section id="view-dashboard" class="page-view active">
-                    <header class="page-header">
-                        <h2>SOC Overview</h2>
-                        <p>Security alert monitoring, investigation status and AI-assisted prioritisation.</p>
-                    </header>
-
-                    <div class="kpi-grid" id="dashboard-kpis">
-                        <!-- Populated by JS -->
+                <!-- View: Dashboard -->
+                <div id="view-dashboard" class="view active">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">SOC Overview</h2>
+                            <p class="page-subtitle">Security alert monitoring, investigation status and AI-assisted prioritization.</p>
+                        </div>
                     </div>
 
-                    <div class="dashboard-grid">
-                        <div class="panel">
-                            <h3>Alert Overview</h3>
-                            <div class="chart-mock">
-                                <div class="chart-bar"><div class="fill critical" style="height: 15%;"></div><span>Crit</span></div>
-                                <div class="chart-bar"><div class="fill high" style="height: 40%;"></div><span>High</span></div>
-                                <div class="chart-bar"><div class="fill medium" style="height: 70%;"></div><span>Med</span></div>
-                                <div class="chart-bar"><div class="fill low" style="height: 30%;"></div><span>Low</span></div>
+                    <div class="grid-5 mb-4">
+                        <div class="card">
+                            <div class="kpi-label">Active Alerts</div>
+                            <div class="kpi-value" id="kpi-active">24</div>
+                        </div>
+                        <div class="card">
+                            <div class="kpi-label">Critical Alerts</div>
+                            <div class="kpi-value" id="kpi-critical" style="color: var(--critical);">4</div>
+                        </div>
+                        <div class="card">
+                            <div class="kpi-label">Investigations in Progress</div>
+                            <div class="kpi-value" id="kpi-investigating">8</div>
+                        </div>
+                        <div class="card">
+                            <div class="kpi-label">Pending Analyst Review</div>
+                            <div class="kpi-value" id="kpi-review">6</div>
+                        </div>
+                        <div class="card">
+                            <div class="kpi-label">Agents Operational</div>
+                            <div class="kpi-value">5/5</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-3 mb-4">
+                        <div class="card" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <span class="card-title">Recent Security Alerts</span>
+                                <button class="btn btn-outline" onclick="navigateTo('view-alerts')">View All</button>
+                            </div>
+                            
+                            <!-- Alert Visualization -->
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary);">
+                                    <span>Alert Distribution by Severity</span>
+                                </div>
+                                <div class="alert-bar-container" id="dashboard-alert-bar">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Alert ID</th>
+                                            <th>Severity</th>
+                                            <th>Alert Type</th>
+                                            <th>Asset</th>
+                                            <th>Status</th>
+                                            <th>Risk</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-alerts-tbody">
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <div class="panel">
-                            <h3>Recent Investigation Activity</h3>
-                            <div class="activity-timeline" id="dashboard-activity">
+
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">Investigation Activity</span>
+                            </div>
+                            <div class="timeline" id="dashboard-timeline">
                                 <!-- Populated by JS -->
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="panel mt-4">
-                        <h3>Recent Security Alerts</h3>
-                        <div class="table-responsive">
-                            <table class="data-table" id="dashboard-alerts-table">
+                <div id="view-alerts" class="view">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">Security Alerts</h2>
+                            <p class="page-subtitle">Unified queue of all ingested security events.</p>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-outline"><i class="ph ph-funnel"></i> Filters</button>
+                            <button class="btn btn-outline"><i class="ph ph-export"></i> Export</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-container">
+                            <table>
                                 <thead>
                                     <tr>
                                         <th>Alert ID</th>
                                         <th>Severity</th>
-                                        <th>Alert Type</th>
+                                        <th>Type</th>
                                         <th>Source</th>
-                                        <th>Asset</th>
+                                        <th>Asset / User</th>
+                                        <th>Detected</th>
                                         <th>Status</th>
                                         <th>Risk Score</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="alerts-page-tbody">
                                     <!-- Populated by JS -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <!-- VIEW: ALERTS -->
-                <section id="view-alerts" class="page-view">
-                    <header class="page-header">
-                        <h2>Alert Management</h2>
-                    </header>
-                    <div class="panel">
-                        <div class="table-controls">
-                            <input type="text" placeholder="Filter alerts...">
-                            <select><option>All Severities</option><option>Critical</option></select>
-                            <select><option>All Statuses</option><option>Investigating</option></select>
+                <div id="view-investigation" class="view">
+                    <div class="page-header">
+                        <div>
+                            <button class="btn btn-outline mb-4" onclick="navigateTo('view-alerts')" style="padding: 4px 8px; font-size: 12px;">
+                                <i class="ph ph-arrow-left"></i> Back to Alerts
+                            </button>
+                            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+                                <h2 class="page-title" id="inv-alert-id">ALT-2026-000</h2>
+                                <span class="badge" id="inv-severity">CRITICAL</span>
+                                <span class="badge badge-outline" id="inv-status">INVESTIGATING</span>
+                            </div>
+                            <p class="page-subtitle" id="inv-type">Alert Type Description</p>
                         </div>
-                        <div class="table-responsive">
-                            <table class="data-table" id="alerts-page-table">
-                                <thead>
-                                    <tr>
-                                        <th>Alert ID</th>
-                                        <th>Severity</th>
-                                        <th>Alert Type</th>
-                                        <th>Source</th>
-                                        <th>Asset</th>
-                                        <th>Timestamp</th>
-                                        <th>Risk Score</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Populated by JS -->
-                                </tbody>
-                            </table>
+                        <div style="display: flex; gap: 12px; align-items: flex-end;">
+                            <button class="btn btn-outline" onclick="triggerAction('Assign to me')">Assign</button>
+                            <button class="btn btn-outline" onclick="triggerAction('Escalate Alert')">Escalate</button>
+                            <button class="btn btn-success" onclick="triggerAction('Resolve Alert')">Resolve</button>
+                            <button class="btn btn-danger" onclick="triggerAction('Close Alert')">Close</button>
                         </div>
                     </div>
-                </section>
-
-                <!-- VIEW: INVESTIGATION DETAIL (Core App Feature) -->
-                <section id="view-investigation" class="page-view">
-                    <header class="investigation-header">
-                        <div class="inv-title">
-                            <h2 id="inv-alert-id">ALT-2026-000</h2>
-                            <span class="badge badge-critical" id="inv-severity">CRITICAL</span>
-                            <span class="badge badge-status" id="inv-status">INVESTIGATING</span>
-                        </div>
-                        <div class="inv-actions">
-                            <button class="btn btn-secondary">Assign</button>
-                            <button class="btn btn-secondary">Escalate</button>
-                            <button class="btn btn-primary" onclick="alert('Demo: Requesting human review...')">Request Review</button>
-                        </div>
-                    </header>
 
                     <div class="investigation-grid">
+                        
                         <!-- Left Column -->
-                        <div class="inv-main">
-                            <!-- AI Summary -->
-                            <div class="panel ai-panel">
-                                <div class="panel-header">
-                                    <h3>SIMULATED AI INVESTIGATION SUMMARY</h3>
-                                    <span class="badge">Confidence: 87%</span>
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            
+                            <!-- Summary Grid -->
+                            <div class="card grid-4" style="gap: 16px;">
+                                <div>
+                                    <div class="kpi-label">Affected Asset</div>
+                                    <div style="font-weight: 500; margin-top: 4px;" id="inv-asset">-</div>
                                 </div>
-                                <p class="ai-text">Multiple indicators suggest suspicious PowerShell execution on FIN-WS-042. Endpoint telemetry shows encoded command execution followed by an outbound connection to an external IP. Threat intelligence enrichment indicates the destination requires further investigation.</p>
-                                <div class="ai-footer">
-                                    <span class="material-symbols-outlined icon-small">science</span> Reasoning status: Multi-agent evidence correlated
+                                <div>
+                                    <div class="kpi-label">Source / Detection</div>
+                                    <div style="font-weight: 500; margin-top: 4px;" id="inv-source">-</div>
+                                </div>
+                                <div>
+                                    <div class="kpi-label">Detection Time</div>
+                                    <div style="font-weight: 500; margin-top: 4px;" id="inv-time">-</div>
+                                </div>
+                                <div>
+                                    <div class="kpi-label">MITRE ATT&CK</div>
+                                    <div style="font-weight: 500; margin-top: 4px; color: var(--accent);">T1059.001</div>
                                 </div>
                             </div>
 
-                            <!-- Agent Investigation Cards -->
-                            <h3 class="section-title">Multi-Agent Investigation</h3>
-                            <div class="agent-cards" id="inv-agents">
-                                <!-- Populated by JS -->
+                            <!-- AI Summary Panel -->
+                            <div class="card ai-panel">
+                                <div class="ai-label">
+                                    <i class="ph ph-robot"></i> Simulated / Mock AI Output
+                                </div>
+                                <h3 style="margin-bottom: 12px; font-size: 16px;">AI Investigation Summary</h3>
+                                <p class="ai-text">
+                                    Multiple indicators suggest suspicious PowerShell execution on endpoint. Endpoint telemetry shows an encoded command execution (`-enc`), immediately followed by an anomalous outbound network connection over port 443 to an unrecognized external IP address. Threat intelligence enrichment indicates the destination IP has historical associations with command and control (C2) infrastructure.
+                                </p>
+                                <div style="display: flex; gap: 24px; padding-top: 12px; border-top: 1px solid rgba(14, 165, 233, 0.2);">
+                                    <div>
+                                        <span class="kpi-label">Confidence</span>
+                                        <div style="font-weight: bold; color: var(--success);">94%</div>
+                                    </div>
+                                    <div>
+                                        <span class="kpi-label">Reasoning Status</span>
+                                        <div style="font-weight: 500;">Multi-agent evidence correlated</div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Human in the loop -->
-                            <div class="panel hitl-panel">
-                                <div class="hitl-header">
-                                    <span class="material-symbols-outlined">person</span>
-                                    <h3>HUMAN ANALYST REVIEW</h3>
-                                    <span class="badge badge-pending">Pending Analyst Decision</span>
+                            <!-- Multi-Agent Cards -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">Agent Execution Activity</span>
                                 </div>
-                                <div class="hitl-content">
-                                    <p><strong>AI Recommendation:</strong> Escalate for further investigation (Confidence: 89%)</p>
-                                    <p><strong>Reason:</strong> Multiple correlated indicators indicate elevated risk.</p>
-                                    <p class="warning-text">AI recommendation requires human approval. AI-generated recommendations do not constitute autonomous security decisions.</p>
-                                </div>
-                                <div class="hitl-actions">
-                                    <button class="btn btn-primary" onclick="app.handleHitlDecision('Approve')">Approve Recommendation</button>
-                                    <button class="btn btn-danger" onclick="app.handleHitlDecision('Reject')">Reject Recommendation</button>
-                                    <button class="btn btn-secondary" onclick="app.handleHitlDecision('Request Evidence')">Request More Evidence</button>
+                                <div id="inv-agent-cards">
+                                    <!-- Populated via JS -->
                                 </div>
                             </div>
                         </div>
 
                         <!-- Right Column -->
-                        <div class="inv-sidebar">
-                            <div class="panel risk-panel">
-                                <h3>Risk Assessment</h3>
-                                <div class="risk-score-display">
-                                    <span class="score critical-text">92</span><span class="score-max">/100</span>
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            
+                            <!-- Risk Assessment -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">Risk Assessment</span>
+                                    <span class="badge sev-critical" style="font-size: 14px;" id="inv-risk">92/100</span>
                                 </div>
-                                <ul class="risk-factors">
-                                    <li>Endpoint Behaviour <span class="text-high">HIGH</span></li>
-                                    <li>Network Destination <span class="text-high">HIGH</span></li>
-                                    <li>Identity Context <span class="text-medium">MEDIUM</span></li>
-                                    <li>Threat Intelligence <span class="text-high">HIGH</span></li>
-                                </ul>
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span class="text-secondary">Endpoint Behavior</span>
+                                        <span class="badge sev-high">HIGH</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span class="text-secondary">Network Destination</span>
+                                        <span class="badge sev-critical">CRITICAL</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span class="text-secondary">Identity Context</span>
+                                        <span class="badge sev-medium">MEDIUM</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span class="text-secondary">Threat Intelligence</span>
+                                        <span class="badge sev-high">HIGH</span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="panel">
-                                <h3>Evidence Timeline</h3>
-                                <div class="timeline" id="inv-timeline">
-                                    <!-- Populated by JS -->
+                            <!-- Human In The Loop Panel -->
+                            <div class="card human-review-panel">
+                                <div class="human-review-header">
+                                    <i class="ph-fill ph-warning-circle"></i>
+                                    HUMAN ANALYST REVIEW REQUIRED
+                                </div>
+                                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                                    AI-generated recommendations do not constitute autonomous security decisions. Consequential actions require authorized human review.
+                                </p>
+                                
+                                <div style="background: var(--bg-panel); padding: 12px; border-radius: var(--radius-md); margin-bottom: 16px;">
+                                    <div class="kpi-label mb-2">AI Recommendation:</div>
+                                    <div style="font-weight: 500;">Isolate Host & Escalate for Incident Response</div>
+                                    <div class="kpi-label mt-2 mb-2">Reason:</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">Multiple correlated indicators (Process, Network, TI) confirm malicious intent with 94% confidence.</div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <button class="btn btn-success" onclick="triggerApproval(true)" style="width: 100%;">Approve</button>
+                                    <button class="btn btn-danger" onclick="triggerApproval(false)" style="width: 100%;">Reject</button>
+                                </div>
+                                <button class="btn btn-outline mt-4" style="width: 100%;" onclick="triggerAction('Request More Evidence')">
+                                    Request More Evidence
+                                </button>
+                            </div>
+
+                            <!-- Evidence Timeline -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">Event Timeline</span>
+                                </div>
+                                <div class="timeline">
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-time">T+ 00:00</div>
+                                        <div class="timeline-content">Alert Ingested by Orchestrator</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-time">T+ 00:05</div>
+                                        <div class="timeline-content">Endpoint Agent extracted process tree</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-time">T+ 00:12</div>
+                                        <div class="timeline-content">Network Context Agent mapped destination IP</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-time">T+ 00:25</div>
+                                        <div class="timeline-content">TI Agent confirmed malicious indicator</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot" style="border-color: var(--warning);"></div>
+                                        <div class="timeline-time">T+ 00:30</div>
+                                        <div class="timeline-content" style="color: var(--warning); font-weight: bold;">Review requested from SOC Analyst</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <!-- VIEW: AGENTS -->
-                <section id="view-agents" class="page-view">
-                    <header class="page-header">
-                        <h2>Agent Orchestration</h2>
-                    </header>
-                    <div class="agent-grid" id="agents-page-grid">
+                <div id="view-agents" class="view">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">Agent Orchestration Status</h2>
+                            <p class="page-subtitle">Real-time monitoring of AI investigation agents.</p>
+                        </div>
+                        <span class="badge sev-low" style="font-size: 14px;">5/5 Agents Operational</span>
+                    </div>
+                    
+                    <div class="grid-3" id="agents-grid">
                         <!-- Populated by JS -->
                     </div>
-                </section>
+                </div>
 
-                <!-- VIEW: EVIDENCE & GOVERNANCE & SETTINGS (Placeholders) -->
-                <section id="view-evidence" class="page-view">
-                    <header class="page-header"><h2>Evidence Repository</h2></header>
-                    <div class="panel"><p>Evidence repository module mock view.</p></div>
-                </section>
-                
-                <section id="view-governance" class="page-view">
-                    <header class="page-header"><h2>Governance & Audit</h2></header>
-                    <div class="panel">
-                        <div class="governance-statement">
-                            <span class="material-symbols-outlined">policy</span>
-                            <p>AI-generated recommendations do not constitute autonomous security decisions. Consequential actions require authorised human review.</p>
+                <div id="view-evidence" class="view">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">Evidence Repository</h2>
+                            <p class="page-subtitle">Correlated artifacts mapped across investigations.</p>
                         </div>
                     </div>
-                </section>
+                    <div class="card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Artifact Value</th>
+                                        <th>Type</th>
+                                        <th>Source Agent</th>
+                                        <th>Related Alert</th>
+                                        <th>Malicious Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="font-family: monospace;">powershell.exe -enc JABz...</td>
+                                        <td>Process Command</td>
+                                        <td>Endpoint Agent</td>
+                                        <td><a href="#" class="text-accent">ALT-2026-001</a></td>
+                                        <td><span class="badge sev-critical">98%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-family: monospace;">185.15.22.x</td>
+                                        <td>IP Address</td>
+                                        <td>Network Agent</td>
+                                        <td><a href="#" class="text-accent">ALT-2026-001</a></td>
+                                        <td><span class="badge sev-high">87%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-                <section id="view-settings" class="page-view">
-                    <header class="page-header"><h2>Platform Settings</h2></header>
-                    <div class="panel"><p>Configuration module mock view.</p></div>
-                </section>
+                <div id="view-governance" class="view">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">Governance & Audit</h2>
+                            <p class="page-subtitle">Immutable log of Human-in-the-Loop decisions and AI actions.</p>
+                        </div>
+                    </div>
 
-            </main>
+                    <div class="mock-warning-banner">
+                        <i class="ph-fill ph-shield-warning" style="font-size: 24px;"></i>
+                        <div>
+                            <strong>GOVERNANCE POLICY:</strong> AI-generated recommendations do not constitute autonomous security decisions. All system isolation, user suspension, or ticket closure actions MUST be explicitly authorized by a Tier 2+ SOC Analyst.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Event</th>
+                                        <th>Actor</th>
+                                        <th>Action</th>
+                                        <th>Decision</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2 min ago</td>
+                                        <td>Risk Threshold Exceeded</td>
+                                        <td><span class="badge badge-outline">Risk Engine</span></td>
+                                        <td>Recommendation Generated</td>
+                                        <td>Escalate</td>
+                                    </tr>
+                                    <tr>
+                                        <td>45 min ago</td>
+                                        <td>Analyst Review</td>
+                                        <td><span class="badge badge-outline">SOC Analyst (SA)</span></td>
+                                        <td>Host Isolation Approval</td>
+                                        <td><span class="badge sev-low">APPROVED</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>3 hrs ago</td>
+                                        <td>Analyst Review</td>
+                                        <td><span class="badge badge-outline">SOC Analyst (SA)</span></td>
+                                        <td>Account Suspension</td>
+                                        <td><span class="badge sev-critical">REJECTED</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="view-settings" class="view">
+                    <div class="page-header">
+                        <div>
+                            <h2 class="page-title">Platform Settings</h2>
+                            <p class="page-subtitle">Configuration for agents, risk thresholds, and integrations.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <p style="color: var(--text-secondary);">Settings module is not available in the current UI prototype.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="custom-modal">
+        <div class="modal-box">
+            <div class="modal-title" id="modal-title">Confirm Action</div>
+            <div class="modal-body" id="modal-body">Are you sure you want to proceed?</div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="modal-confirm-btn">Confirm</button>
+            </div>
         </div>
     </div>
-    
-    <!-- Link to the JS file in the same directory -->
-    <script src="script.js"></script>
+
+    <script>
+        /**
+         * State Management & Mock Data Architecture
+         * Designed to be easily replaceable with actual API fetch calls later.
+         */
+        const appState = {
+            currentPage: 'view-dashboard',
+            selectedAlertId: null
+        };
+
+        const mockAlerts = [
+            { id: 'ALT-2026-001', severity: 'Critical', type: 'Suspicious PowerShell Activity', source: 'EDR', asset: 'FIN-WS-042', user: 'j.doe', detected: '2 min ago', status: 'Pending Review', risk: 94 },
+            { id: 'ALT-2026-002', severity: 'High', type: 'Impossible Travel Detection', source: 'Identity Provider', asset: 'Cloud-IdP', user: 'a.smith', detected: '15 min ago', status: 'Investigating', risk: 78 },
+            { id: 'ALT-2026-003', severity: 'Medium', type: 'Excessive File Sharing', source: 'CASB', asset: 'SharePoint', user: 'm.jones', detected: '1 hr ago', status: 'Investigating', risk: 55 },
+            { id: 'ALT-2026-004', severity: 'Low', type: 'Failed Logon Spike', source: 'Active Directory', asset: 'DC-01', user: 'svc_backup', detected: '2 hrs ago', status: 'New', risk: 25 },
+            { id: 'ALT-2026-005', severity: 'Critical', type: 'Ransomware Extension Detected', source: 'EDR', asset: 'ENG-WS-112', user: 'p.miller', detected: '3 hrs ago', status: 'Escalated', risk: 99 },
+            { id: 'ALT-2026-006', severity: 'High', type: 'Unusual Outbound C2 Traffic', source: 'Firewall', asset: '10.0.4.15', user: 'System', detected: '4 hrs ago', status: 'Resolved', risk: 82 }
+        ];
+
+        const mockAgents = [
+            { name: 'Threat Intelligence Agent', icon: 'ph-shield-search', status: 'ONLINE', task: 'Idle', lastRun: '2 mins ago', conf: '96%' },
+            { name: 'Endpoint Agent', icon: 'ph-desktop', status: 'RUNNING', task: 'Extracting Process Tree', lastRun: 'Just now', conf: '92%' },
+            { name: 'Identity Agent', icon: 'ph-user-focus', status: 'ONLINE', task: 'Idle', lastRun: '15 mins ago', conf: '88%' },
+            { name: 'Network Context Agent', icon: 'ph-activity', status: 'ONLINE', task: 'Idle', lastRun: '4 mins ago', conf: '85%' },
+            { name: 'Correlation & Risk Agent', icon: 'ph-brain', status: 'RUNNING', task: 'Calculating Risk Score', lastRun: 'Just now', conf: '94%' }
+        ];
+
+        const investigationActivity = [
+            { time: '2 mins ago', text: 'Threat Intelligence Agent completed IP enrichment.' },
+            { time: '5 mins ago', text: 'Endpoint Agent retrieved process telemetry.' },
+            { time: '12 mins ago', text: 'Risk Engine updated score from 78 → 94.' },
+            { time: '15 mins ago', text: 'Alert generated by EDR.' }
+        ];
+
+        /* Utility Functions */
+        function getSeverityClass(severity) {
+            const s = severity.toLowerCase();
+            if (s === 'critical') return 'sev-critical';
+            if (s === 'high') return 'sev-high';
+            if (s === 'medium') return 'sev-medium';
+            return 'sev-low';
+        }
+
+        function getStatusBadgeClass(status) {
+            const s = status.toLowerCase();
+            if (s.includes('review') || s.includes('escalate')) return 'sev-high';
+            if (s.includes('investigating')) return 'sev-medium';
+            if (s.includes('resolve') || s.includes('close')) return 'sev-low';
+            return 'badge-outline';
+        }
+
+        function initApp() {
+            // Setup navigation listeners
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = e.currentTarget.getAttribute('data-target');
+                    if (target) navigateTo(target);
+                });
+            });
+
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('mobile-open');
+            });
+
+            // Initial render
+            renderDashboard();
+            renderAlertsPage();
+            renderAgentsPage();
+        }
+
+        function navigateTo(viewId) {
+            // Update State
+            appState.currentPage = viewId;
+
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            
+            // Show target view
+            const targetView = document.getElementById(viewId);
+            if (targetView) targetView.classList.add('active');
+
+            // Update Sidebar UI
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const activeNav = document.querySelector(`.nav-item[data-target="${viewId}"]`);
+            if (activeNav) activeNav.classList.add('active');
+
+            // Close mobile menu if open
+            document.getElementById('sidebar').classList.remove('mobile-open');
+
+            // Context specific renders if needed
+            if (viewId === 'view-dashboard') renderDashboard();
+        }
+
+        function renderDashboard() {
+            // Render KPI values (mock)
+            const active = mockAlerts.filter(a => !['Resolved', 'Closed'].includes(a.status)).length;
+            const critical = mockAlerts.filter(a => a.severity === 'Critical').length;
+            
+            document.getElementById('kpi-active').innerText = active;
+            document.getElementById('kpi-critical').innerText = critical;
+            document.getElementById('nav-alert-badge').innerText = active;
+
+            // Render Alert Bar Chart (CSS flex)
+            const barContainer = document.getElementById('dashboard-alert-bar');
+            const total = mockAlerts.length;
+            const counts = { 'Critical': 0, 'High': 0, 'Medium': 0, 'Low': 0 };
+            mockAlerts.forEach(a => counts[a.severity]++);
+            
+            barContainer.innerHTML = '';
+            Object.keys(counts).forEach(sev => {
+                if(counts[sev] > 0) {
+                    const width = (counts[sev] / total) * 100;
+                    const colorVar = `var(--${sev.toLowerCase()})`;
+                    barContainer.innerHTML += `<div class="alert-segment" style="width: ${width}%; background-color: ${colorVar};" title="${sev}: ${counts[sev]}">${counts[sev]}</div>`;
+                }
+            });
+
+            // Render Dashboard Table
+            const tbody = document.getElementById('dashboard-alerts-tbody');
+            tbody.innerHTML = '';
+            mockAlerts.slice(0, 4).forEach(alert => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.onclick = () => openInvestigation(alert.id);
+                tr.innerHTML = `
+                    <td style="color: var(--accent); font-weight: 500;">${alert.id}</td>
+                    <td><span class="badge ${getSeverityClass(alert.severity)}">${alert.severity}</span></td>
+                    <td>${alert.type}</td>
+                    <td>${alert.asset}</td>
+                    <td><span class="badge ${getStatusBadgeClass(alert.status)}">${alert.status}</span></td>
+                    <td><span class="badge ${alert.risk > 80 ? 'sev-critical' : 'sev-medium'}">${alert.risk}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Render Timeline
+            const tl = document.getElementById('dashboard-timeline');
+            tl.innerHTML = '';
+            investigationActivity.forEach((act, i) => {
+                tl.innerHTML += `
+                    <div class="timeline-item">
+                        <div class="timeline-dot" ${i === 0 ? 'style="border-color: var(--accent); background: var(--accent);"' : ''}></div>
+                        <div class="timeline-time">${act.time}</div>
+                        <div class="timeline-content">${act.text}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderAlertsPage() {
+            const tbody = document.getElementById('alerts-page-tbody');
+            tbody.innerHTML = '';
+            mockAlerts.forEach(alert => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.onclick = () => openInvestigation(alert.id);
+                tr.innerHTML = `
+                    <td style="color: var(--accent); font-weight: 500;">${alert.id}</td>
+                    <td><span class="badge ${getSeverityClass(alert.severity)}">${alert.severity}</span></td>
+                    <td>${alert.type}</td>
+                    <td>${alert.source}</td>
+                    <td>${alert.asset} <br><span style="font-size: 11px; color: var(--text-muted);">${alert.user}</span></td>
+                    <td>${alert.detected}</td>
+                    <td><span class="badge ${getStatusBadgeClass(alert.status)}">${alert.status}</span></td>
+                    <td><span class="badge ${alert.risk > 80 ? 'sev-critical' : 'sev-medium'}">${alert.risk}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openInvestigation(alertId) {
+            const alert = mockAlerts.find(a => a.id === alertId);
+            if (!alert) return;
+
+            appState.selectedAlertId = alertId;
+
+            // Populate Headers
+            document.getElementById('inv-alert-id').innerText = alert.id;
+            document.getElementById('inv-severity').innerText = alert.severity.toUpperCase();
+            document.getElementById('inv-severity').className = `badge ${getSeverityClass(alert.severity)}`;
+            document.getElementById('inv-status').innerText = alert.status.toUpperCase();
+            document.getElementById('inv-type').innerText = alert.type;
+            
+            // Populate Summary
+            document.getElementById('inv-asset').innerText = `${alert.asset} (${alert.user})`;
+            document.getElementById('inv-source').innerText = alert.source;
+            document.getElementById('inv-time').innerText = alert.detected;
+            document.getElementById('inv-risk').innerText = `${alert.risk}/100`;
+
+            // Populate Agents
+            const agentsContainer = document.getElementById('inv-agent-cards');
+            agentsContainer.innerHTML = '';
+            mockAgents.forEach(agent => {
+                agentsContainer.innerHTML += `
+                    <div class="agent-card">
+                        <div class="agent-card-header">
+                            <span class="agent-name"><i class="ph ${agent.icon}"></i> ${agent.name}</span>
+                            <span class="badge ${agent.status === 'ONLINE' ? 'sev-low' : 'sev-medium'}">${agent.status}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary);">
+                            <span>Task: ${agent.task}</span>
+                            <span style="color: var(--text-primary); font-weight: 600;">Conf: ${agent.conf}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Make investigation link visible in sidebar temporarily for UX context
+            document.getElementById('nav-investigation').style.display = 'flex';
+            
+            navigateTo('view-investigation');
+        }
+
+        function renderAgentsPage() {
+            const grid = document.getElementById('agents-grid');
+            grid.innerHTML = '';
+            mockAgents.forEach(agent => {
+                grid.innerHTML += `
+                    <div class="card">
+                        <div class="card-header" style="margin-bottom: 8px;">
+                            <span class="agent-name" style="font-size: 16px;"><i class="ph ${agent.icon}"></i> ${agent.name}</span>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <span class="badge ${agent.status === 'ONLINE' ? 'sev-low' : 'sev-medium'}">${agent.status}</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+                            Current Task: <span style="color: var(--text-primary);">${agent.task}</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+                            Last Run: <span style="color: var(--text-primary);">${agent.lastRun}</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">
+                            Average Confidence: <span style="color: var(--success); font-weight: bold;">${agent.conf}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        let currentConfirmAction = null;
+
+        function showModal(title, message, confirmCallback) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerText = message;
+            
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            // Remove old listeners
+            const newBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+            
+            newBtn.addEventListener('click', () => {
+                if (confirmCallback) confirmCallback();
+                closeModal();
+            });
+
+            document.getElementById('custom-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.remove('show');
+        }
+
+        function triggerAction(actionName) {
+            showModal(
+                `Confirm Action: ${actionName}`, 
+                `Are you sure you want to execute '${actionName}' on ${appState.selectedAlertId}? This will be logged in the governance audit trail.`,
+                () => {
+                    // Update UI status to simulate action
+                    if (actionName === 'Resolve Alert' || actionName === 'Close Alert') {
+                        document.getElementById('inv-status').innerText = 'RESOLVED';
+                        document.getElementById('inv-status').className = 'badge sev-low';
+                        
+                        // Show a small inline success toast or simply update the DOM
+                        const statusObj = document.getElementById('system-status');
+                        const oldHTML = statusObj.innerHTML;
+                        statusObj.innerHTML = `<i class="ph-fill ph-check-circle"></i> Action Logged`;
+                        setTimeout(() => statusObj.innerHTML = oldHTML, 3000);
+                    }
+                }
+            );
+        }
+
+        function triggerApproval(isApproved) {
+            const action = isApproved ? 'Approve AI Recommendation' : 'Reject AI Recommendation';
+            showModal(
+                `Human-in-the-Loop: ${action}`,
+                `You are about to explicitly ${isApproved ? 'authorize' : 'decline'} the AI recommended action for ${appState.selectedAlertId}. This decision will be permanently recorded in the audit log.`,
+                () => {
+                    const statusEl = document.getElementById('inv-status');
+                    statusEl.innerText = isApproved ? 'ESCALATED' : 'INVESTIGATING';
+                    statusEl.className = isApproved ? 'badge sev-critical' : 'badge badge-outline';
+                    
+                    // Modify the human review panel to reflect decision
+                    const reviewPanel = document.querySelector('.human-review-panel');
+                    reviewPanel.style.borderColor = isApproved ? 'var(--success)' : 'var(--critical)';
+                    reviewPanel.style.background = isApproved ? 'var(--success-bg)' : 'var(--critical-bg)';
+                    reviewPanel.innerHTML = `
+                        <div style="color: ${isApproved ? 'var(--success)' : 'var(--critical)'}; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 15px;">
+                            <i class="ph-fill ph-check-circle"></i> ANALYST DECISION RECORDED
+                        </div>
+                        <p style="font-size: 13px;">You have <strong>${isApproved ? 'APPROVED' : 'REJECTED'}</strong> the AI recommendation.</p>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Action logged at ${new Date().toLocaleTimeString()}</p>
+                    `;
+                }
+            );
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
 </body>
 </html>
